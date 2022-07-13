@@ -4,9 +4,17 @@ using UnityEngine;
 
 public class BoardController : MonoBehaviour
 {
-    [SerializeField] private ObjectPool objectPool;
+    public enum GameState
+    {
+        wait,
+        move
+    }
+    [Header ("Column To Stop")]
+    [Tooltip("eğer sütunların hiç birinde spaw'ın durmasını istemiyorsanız değeri 9 girebilirsiniz.")]
+    [SerializeField] private int columnToStop;
 
     [Header ("Board Settings")]
+    public GameState currentState = GameState.move;
     public int boardWidth;
     public int boardHeight;
     [SerializeField] private GameObject tilePrefab;
@@ -18,6 +26,8 @@ public class BoardController : MonoBehaviour
     public GameObject[,] allDrops;
     private GameObject drop;
     private int dropPoolType;
+    [SerializeField] private ObjectPool objectPool;
+    [SerializeField] private MatchFinder matchFinder;
 
     private void OnEnable() 
     {
@@ -47,7 +57,7 @@ public class BoardController : MonoBehaviour
 
                 maxIterations = 0;
 
-                drop = objectPool.PoolDrop(tempPosition, dropPoolType);
+                drop = objectPool.SpawnFromPool(tempPosition, dropPoolType);
                 allDrops[i,j] = drop;
             }
         }
@@ -94,8 +104,8 @@ public class BoardController : MonoBehaviour
     {
         if(allDrops[column, row].GetComponent<DropController>().isMatched)
         {
-            objectPool.ReturnToPool(allDrops[column, row]);
-            //Destroy(allDrops[column, row]);
+            matchFinder.currentMatches.Remove(allDrops[column,row]);
+            objectPool.ReturnToPool(allDrops[column , row]);
             allDrops[column, row] = null;
         }
     }
@@ -134,22 +144,22 @@ public class BoardController : MonoBehaviour
             }
             emptyTileCount = 0;
         }
-        yield return new WaitForSeconds( .2f);
+        yield return new WaitForSeconds( .25f);
         StartCoroutine(FillEmptySpaces());
     }
 
     private void SpawnNewDrops()
     {
-        for(int i=0; i<boardWidth; i++)
+        for(int i=0; i<boardHeight; i++)
         {
-            for(int j=0; j<boardHeight; j++)
+            for(int j=0; j<boardWidth; j++)
             {
-                if(allDrops[i, j] == null)
+                if(allDrops[i, j] == null && i != columnToStop)
                 {
                     int dropPoolType = Random.Range(0, 4);
                     Vector2 tempPosition = new Vector2(i, j);
-                    GameObject drop = objectPool.RespawnDrop(tempPosition, dropPoolType);
                     //GameObject drop = Instantiate(drops[dropPoolType], tempPosition, Quaternion.identity);
+                    GameObject drop = objectPool.RespawnFromPool(tempPosition, dropPoolType);
                     allDrops[i, j] = drop;
                 }
             }
@@ -177,12 +187,14 @@ public class BoardController : MonoBehaviour
     private IEnumerator FillEmptySpaces()
     {
         SpawnNewDrops();
-        yield return new WaitForSeconds(.1f);
+        yield return new WaitForSeconds(.25f);
 
         while(MatchesOnBoard())
         {
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(.25f);
             ClearMatches();
         }
+        yield return new WaitForSeconds(.4f);
+        currentState = GameState.move;
     }
 }

@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: drops
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: b348d7d67018b04468acac41513d237f, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 808b99f245d1c6642a604a4f80921d69, type: 3}
+  - {fileID: 21300000, guid: ff33d4c55dae994469203ae824cc9568, type: 3}
+  - {fileID: 21300000, guid: cdf12dc5a03d59b45bc6c5d3b5bf524f, type: 3}
+  - {fileID: 21300000, guid: 9587c9d86831f2840927177dd8c5aa17, type: 3}
+  - {fileID: 21300000, guid: 2659e40d678755348884b9bb8e533c5c, type: 3}
+  - {fileID: 21300000, guid: db21dced8a433484ea810c558387d83a, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - dropR
+  - tile
+  - dropG
+  - dropB
+  - dropY
+  - resetButton
+  m_RenderDataMap: {}
+  m_Tag: drops
+  m_IsVariant: 0

@@ -30,7 +30,7 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public GameObject PoolDrop(Vector2 dropPosition, int dropType)
+    public GameObject SpawnFromPool(Vector2 dropPosition, int dropType)
     {
         if(dropType >= pools.Length)
         {
@@ -46,20 +46,21 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public GameObject RespawnDrop(Vector2 dropPosition, int dropType)
+    public GameObject RespawnFromPool(Vector2 dropPosition, int dropType)
     {
         GameObject drop = pools[dropType].pooledObjects.Dequeue();
         drop.transform.position = dropPosition;
         drop.SetActive(true);
+        pools[dropType].pooledObjects.Enqueue(drop);
         return drop;
     }
 
     public void ReturnToPool(GameObject drop)
     {
-
-        drop.GetComponent<DropController>().isMatched = false;
-        drop.transform.position = Vector2.zero;
+        DropController dropController = drop.GetComponent<DropController>();
+        dropController.isMatched = false;
+        dropController.swipeAngle = 0;
+        LeanTween.scale(drop, Vector2.one, 0.1f);
         drop.SetActive(false);
     }
-
 }

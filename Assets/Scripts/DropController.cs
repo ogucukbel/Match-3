@@ -36,26 +36,25 @@ public class DropController : MonoBehaviour
     private DropController rightDropController;
     private DropController upDropController;
     private DropController downDropController;
+    private MatchFinder matchFinder;
 
 
     private void Start() 
     {
         board = FindObjectOfType<BoardController>();
+        matchFinder = FindObjectOfType<MatchFinder>();
+
         targetPositionX = (int) transform.position.x;
         targetPositionY = (int) transform.position.y;
         dropRow = targetPositionY;
         dropColumn = targetPositionX;
-
     }
 
-    private void Update() 
+    private void FixedUpdate() 
     {
-        FindMatch();
-
         if(isMatched)
         {
-            SpriteRenderer mySprite = GetComponent<SpriteRenderer>();
-            mySprite.color = Color.gray;
+            LeanTween.scale(this.gameObject, Vector2.one * 1.4f, 0.05f);
         }
 
 
@@ -69,6 +68,7 @@ public class DropController : MonoBehaviour
             {
                 board.allDrops[dropColumn, dropRow] = this.gameObject;
             }
+            matchFinder.FindAllMatches();
         }
         else
         {
@@ -85,6 +85,7 @@ public class DropController : MonoBehaviour
             {
                 board.allDrops[dropColumn, dropRow] = this.gameObject;
             }
+            matchFinder.FindAllMatches();
         }
         else
         {
@@ -95,15 +96,19 @@ public class DropController : MonoBehaviour
 
     private void OnMouseDown() 
     {
-        firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if(board.currentState == BoardController.GameState.move)
+        {
+            firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
     }
 
     private void OnMouseUp() 
     {
-     
-        finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        CalculateAngle();
-
+        if(board.currentState == BoardController.GameState.move)
+        {
+            finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            CalculateAngle();
+        }
     }
 
     private void CalculateAngle()
@@ -112,7 +117,11 @@ public class DropController : MonoBehaviour
         {   
             swipeAngle = Mathf.Atan2((finalTouchPosition.y - firstTouchPosition.y), (finalTouchPosition.x - firstTouchPosition.x)) * Mathf.Rad2Deg;
             MoveDrops();
-
+            board.currentState = BoardController.GameState.wait;
+        }
+        else
+        {
+            board.currentState = BoardController.GameState.move;
         }
     }
 
@@ -176,50 +185,14 @@ public class DropController : MonoBehaviour
                 targetDrop.GetComponent<DropController>().dropColumn = dropColumn;
                 dropRow = previousRow;
                 dropColumn = previousColumn;
+                yield return new WaitForSeconds(.25f);
+                board.currentState = BoardController.GameState.move;
             }
             else if(isMatched || targetDrop.GetComponent<DropController>().isMatched)
             {
                 board.ClearMatches();
             }
             targetDrop = null;
-        }
-    }
-
-    private void FindMatch()
-    {
-        if(dropColumn > 0 && dropColumn < board.boardWidth - 1)
-        {
-            if(board.allDrops[dropColumn -1, dropRow] != null && board.allDrops[dropColumn +1, dropRow] != null 
-            && board.allDrops[dropColumn -1, dropRow] != this.gameObject && board.allDrops[dropColumn +1, dropRow] != this.gameObject)
-            {
-                GameObject leftDrop1 = board.allDrops[dropColumn -1, dropRow];
-                GameObject rightDrop1 = board.allDrops[dropColumn +1, dropRow];
-                leftDropController = leftDrop1.GetComponent<DropController>();
-                rightDropController = rightDrop1.GetComponent<DropController>();
-                if(leftDropController.dropType == this.dropType && rightDropController.dropType == this.dropType)
-                {
-                    leftDropController.isMatched = true;
-                    rightDropController.isMatched = true;
-                    isMatched = true;
-                }
-            }
-        }
-        if(dropRow > 0 && dropRow < board.boardHeight - 1 )
-        {
-            if(board.allDrops[dropColumn, dropRow + 1] != null && board.allDrops[dropColumn, dropRow -1] != null 
-            && board.allDrops[dropColumn, dropRow + 1] != this.gameObject && board.allDrops[dropColumn, dropRow -1] != this.gameObject)
-            {
-                GameObject upDrop1 = board.allDrops[dropColumn, dropRow + 1];
-                GameObject downDrop1 = board.allDrops[dropColumn, dropRow -1];
-                upDropController = upDrop1.GetComponent<DropController>();
-                downDropController = downDrop1.GetComponent<DropController>();
-                if(upDropController.dropType == this.dropType && downDropController.dropType == this.dropType)
-                {
-                    upDropController.isMatched = true;
-                    downDropController.isMatched = true;
-                    isMatched = true;
-                }
-            }
         }
     }
 }
