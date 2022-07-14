@@ -158,7 +158,6 @@ public class BoardController : MonoBehaviour
                 {
                     int dropPoolType = Random.Range(0, 4);
                     Vector2 tempPosition = new Vector2(i, j);
-                    //GameObject drop = Instantiate(drops[dropPoolType], tempPosition, Quaternion.identity);
                     GameObject drop = objectPool.RespawnFromPool(tempPosition, dropPoolType);
                     allDrops[i, j] = drop;
                 }
